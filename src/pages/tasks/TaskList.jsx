@@ -16,10 +16,20 @@ export default function TaskList() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
-  const loadTasks = useCallback(() => {
+  const [users, setUsers] = useState([])
+
+  const loadTasks = useCallback(async () => {
     setLoading(true)
-    setTasks(taskService.getTasks())
-    setLoading(false)
+    try {
+      const [t, u] = await Promise.all([
+        taskService.getTasks(),
+        userService.getUsers(),
+      ])
+      setTasks(t)
+      setUsers(u)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
@@ -30,12 +40,10 @@ export default function TaskList() {
     loadTasks()
   }, [location.key, loadTasks])
 
-  const updateTask = useCallback((id, data) => {
-    const updated = taskService.updateTask(id, data)
+  const updateTask = useCallback(async (id, data) => {
+    const updated = await taskService.updateTask(id, data)
     setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
   }, [])
-
-  const users = userService.getUsers()
 
   const filtered = tasks.filter((t) =>
     t.title.toLowerCase().includes(search.toLowerCase())

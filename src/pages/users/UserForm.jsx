@@ -25,16 +25,17 @@ export default function UserForm() {
 
   useEffect(() => {
     if (isEdit) {
-      const user = getUserById(id)
-      if (user) {
-        setForm({
-          name: user.name,
-          email: user.email,
-          password: '',
-          role: user.role,
-          department: user.department,
-        })
-      }
+      getUserById(id).then((user) => {
+        if (user) {
+          setForm({
+            name: user.name,
+            email: user.email,
+            password: '',
+            role: user.role,
+            department: user.department,
+          })
+        }
+      })
     }
   }, [id, isEdit, getUserById])
 

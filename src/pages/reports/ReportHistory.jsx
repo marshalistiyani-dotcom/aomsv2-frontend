@@ -20,10 +20,20 @@ export default function ReportHistory() {
   const [endDate, setEndDate] = useState('')
   const [exporting, setExporting] = useState(false)
 
-  const loadReports = useCallback(() => {
+  const [users, setUsers] = useState([])
+
+  const loadReports = useCallback(async () => {
     setLoading(true)
-    setReports(reportService.getReports())
-    setLoading(false)
+    try {
+      const [r, u] = await Promise.all([
+        reportService.getReports(),
+        userService.getUsers(),
+      ])
+      setReports(r)
+      setUsers(u)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
@@ -34,12 +44,10 @@ export default function ReportHistory() {
     loadReports()
   }, [location.key, loadReports])
 
-  const deleteReport = useCallback((id) => {
-    reportService.deleteReport(id)
+  const deleteReport = useCallback(async (id) => {
+    await reportService.deleteReport(id)
     setReports((prev) => prev.filter((r) => r.id !== id))
   }, [])
-
-  const users = userService.getUsers()
 
   const filtered = reports.filter((r) => {
     if (startDate && endDate) {
@@ -63,7 +71,7 @@ export default function ReportHistory() {
 
     setExporting(true)
     try {
-      const rangeReports = reportService.getReportsByDateRange(startDate, endDate)
+      const rangeReports = await reportService.getReportsByDateRange(startDate, endDate)
 
       if (rangeReports.length === 0) {
         alert('Tidak ada laporan di rentang tanggal tersebut.')

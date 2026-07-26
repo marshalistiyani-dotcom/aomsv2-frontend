@@ -17,7 +17,7 @@ export default function TaskForm() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { createTask, updateTask, getTaskById } = useTasks()
-  const [users] = useState(() => userService.getUsers())
+  const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     title: '',
@@ -28,25 +28,30 @@ export default function TaskForm() {
     timeStart: '',
     timeEnd: '',
     progress: 0,
-    assignee: user.id,
+    assignee: user?.id || '',
   })
 
   useEffect(() => {
+    userService.getUsers().then(setUsers)
+  }, [])
+
+  useEffect(() => {
     if (isEdit) {
-      const task = getTaskById(id)
-      if (task) {
-        setForm({
-          title: task.title,
-          description: task.description || '',
-          status: task.status,
-          priority: task.priority,
-          dueDate: task.dueDate,
-          timeStart: task.timeStart || '',
-          timeEnd: task.timeEnd || '',
-          progress: task.progress || 0,
-          assignee: task.assignee,
-        })
-      }
+      getTaskById(id).then((task) => {
+        if (task) {
+          setForm({
+            title: task.title,
+            description: task.description || '',
+            status: task.status,
+            priority: task.priority,
+            dueDate: task.dueDate,
+            timeStart: task.timeStart || '',
+            timeEnd: task.timeEnd || '',
+            progress: task.progress || 0,
+            assignee: task.assignee,
+          })
+        }
+      })
     }
   }, [id, isEdit, getTaskById])
 

@@ -5,35 +5,38 @@ export function useKPI() {
   const [kpiList, setKpiList] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const loadKPI = useCallback(() => {
+  const loadKPI = useCallback(async () => {
     setLoading(true)
-    const data = kpiService.getKPI()
-    setKpiList(data)
-    setLoading(false)
+    try {
+      const data = await kpiService.getKPI()
+      setKpiList(data)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
     loadKPI()
   }, [loadKPI])
 
-  const createKPI = useCallback((data) => {
-    const item = kpiService.createKPI(data)
+  const createKPI = useCallback(async (data) => {
+    const item = await kpiService.createKPI(data)
     setKpiList((prev) => [item, ...prev])
     return item
   }, [])
 
-  const updateKPI = useCallback((id, data) => {
-    const item = kpiService.updateKPI(id, data)
+  const updateKPI = useCallback(async (id, data) => {
+    const item = await kpiService.updateKPI(id, data)
     setKpiList((prev) => prev.map((k) => (k.id === id ? item : k)))
     return item
   }, [])
 
-  const deleteKPI = useCallback((id) => {
-    kpiService.deleteKPI(id)
+  const deleteKPI = useCallback(async (id) => {
+    await kpiService.deleteKPI(id)
     setKpiList((prev) => prev.filter((k) => k.id !== id))
   }, [])
 
-  const getKPIById = useCallback((id) => {
+  const getKPIById = useCallback(async (id) => {
     return kpiService.getKPIById(id)
   }, [])
 

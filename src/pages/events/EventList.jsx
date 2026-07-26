@@ -20,10 +20,20 @@ export default function EventList() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
 
-  const loadEvents = useCallback(() => {
+  const [users, setUsers] = useState([])
+
+  const loadEvents = useCallback(async () => {
     setLoading(true)
-    setEvents(eventService.getEvents())
-    setLoading(false)
+    try {
+      const [e, u] = await Promise.all([
+        eventService.getEvents(),
+        userService.getUsers(),
+      ])
+      setEvents(e)
+      setUsers(u)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
@@ -34,12 +44,10 @@ export default function EventList() {
     loadEvents()
   }, [location.key, loadEvents])
 
-  const deleteEvent = useCallback((id) => {
-    eventService.deleteEvent(id)
+  const deleteEvent = useCallback(async (id) => {
+    await eventService.deleteEvent(id)
     setEvents((prev) => prev.filter((e) => e.id !== id))
   }, [])
-
-  const users = userService.getUsers()
 
   const filtered = events.filter((e) => {
     const matchSearch = e.title.toLowerCase().includes(search.toLowerCase())

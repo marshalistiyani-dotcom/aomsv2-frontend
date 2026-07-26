@@ -5,29 +5,32 @@ export function useReports() {
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const loadReports = useCallback(() => {
+  const loadReports = useCallback(async () => {
     setLoading(true)
-    const data = reportService.getReports()
-    setReports(data)
-    setLoading(false)
+    try {
+      const data = await reportService.getReports()
+      setReports(data)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
     loadReports()
   }, [loadReports])
 
-  const createReport = useCallback((data) => {
-    const report = reportService.createReport(data)
+  const createReport = useCallback(async (data) => {
+    const report = await reportService.createReport(data)
     setReports((prev) => [report, ...prev])
     return report
   }, [])
 
-  const deleteReport = useCallback((id) => {
-    reportService.deleteReport(id)
+  const deleteReport = useCallback(async (id) => {
+    await reportService.deleteReport(id)
     setReports((prev) => prev.filter((r) => r.id !== id))
   }, [])
 
-  const getReportsByDateRange = useCallback((start, end) => {
+  const getReportsByDateRange = useCallback(async (start, end) => {
     return reportService.getReportsByDateRange(start, end)
   }, [])
 

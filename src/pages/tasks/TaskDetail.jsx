@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card, CardBody } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
@@ -11,8 +12,13 @@ export default function TaskDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { getTaskById, deleteTask, updateTask } = useTasks()
-  const task = getTaskById(id)
-  const users = userService.getUsers()
+  const [task, setTask] = useState(null)
+  const [users, setUsers] = useState([])
+
+  useEffect(() => {
+    getTaskById(id).then(setTask)
+    userService.getUsers().then(setUsers)
+  }, [id, getTaskById])
 
   if (!task) {
     return (

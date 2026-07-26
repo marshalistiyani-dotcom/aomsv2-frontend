@@ -8,13 +8,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const current = getCurrentUser()
-    if (current) setUser(current)
-    setLoading(false)
+    getCurrentUser()
+      .then((u) => setUser(u))
+      .finally(() => setLoading(false))
   }, [])
 
-  const login = useCallback((email, password) => {
-    const loggedInUser = authLogin(email, password)
+  const login = useCallback(async (email, password) => {
+    const loggedInUser = await authLogin(email, password)
     setUser(loggedInUser)
     return loggedInUser
   }, [])

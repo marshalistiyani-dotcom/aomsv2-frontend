@@ -1,46 +1,22 @@
-import { STORAGE_KEYS } from '../utils/constants'
-import { generateId } from '../utils/helpers'
-
-function getAll() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEYS.REPORTS) || '[]')
-}
-
-function saveAll(reports) {
-  localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(reports))
-}
+import { api } from './api'
 
 export function getReports() {
-  return getAll()
+  return api.get('/api/reports')
 }
 
 export function getReportsByDateRange(startDate, endDate) {
-  const start = new Date(startDate)
-  const end = new Date(endDate)
-  return getAll().filter((r) => {
-    const d = new Date(r.date)
-    return d >= start && d <= end
-  })
+  return api.get(`/api/reports/range?start=${startDate}&end=${endDate}`)
 }
 
-export function getReportsByUserId(userId) {
-  return getAll().filter((r) => r.userId === userId)
+export async function getReportsByUserId(userId) {
+  const all = await getReports()
+  return all.filter((r) => r.userId === userId)
 }
 
 export function createReport(data) {
-  const reports = getAll()
-  const now = new Date().toISOString()
-  const report = {
-    id: generateId(),
-    ...data,
-    taskIds: data.taskIds || [],
-    createdAt: now,
-  }
-  reports.unshift(report)
-  saveAll(reports)
-  return report
+  return api.post('/api/reports', data)
 }
 
 export function deleteReport(id) {
-  const reports = getAll().filter((r) => r.id !== id)
-  saveAll(reports)
+  return api.delete(`/api/reports/${id}`)
 }

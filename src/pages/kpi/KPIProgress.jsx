@@ -1,14 +1,19 @@
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card, CardBody } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { useKPI } from '../../hooks/useKPI'
-import { ArrowLeft, Target } from 'lucide-react'
+import { ArrowLeft, Target, Edit, Trash2 } from 'lucide-react'
 
 export default function KPIProgress() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getKPIById } = useKPI()
-  const kpi = getKPIById(id)
+  const { getKPIById, deleteKPI } = useKPI()
+  const [kpi, setKpi] = useState(null)
+
+  useEffect(() => {
+    getKPIById(id).then(setKpi)
+  }, [id, getKPIById])
 
   if (!kpi) {
     return (
@@ -28,15 +33,32 @@ export default function KPIProgress() {
     return 'text-red-600'
   }
 
+  const handleDelete = () => {
+    if (confirm('Hapus KPI ini?')) {
+      deleteKPI(kpi.id)
+      navigate('/kpi')
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate('/kpi')} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{kpi.name}</h1>
-          <p className="text-sm text-gray-500 mt-1">Detail progress KPI</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/kpi')} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{kpi.name}</h1>
+            <p className="text-sm text-gray-500 mt-1">Detail progress KPI</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => navigate(`/kpi/${kpi.id}/edit`)}>
+            <Edit size={16} className="mr-1" /> Edit
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            <Trash2 size={16} className="mr-1" /> Hapus
+          </Button>
         </div>
       </div>
 

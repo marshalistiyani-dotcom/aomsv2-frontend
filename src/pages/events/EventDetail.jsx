@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card, CardBody } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
@@ -11,8 +12,13 @@ export default function EventDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { getEventById, deleteEvent } = useEvents()
-  const event = getEventById(id)
-  const users = userService.getUsers()
+  const [event, setEvent] = useState(null)
+  const [users, setUsers] = useState([])
+
+  useEffect(() => {
+    getEventById(id).then(setEvent)
+    userService.getUsers().then(setUsers)
+  }, [id, getEventById])
 
   if (!event) {
     return (

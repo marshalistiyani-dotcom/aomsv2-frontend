@@ -1,41 +1,21 @@
-import { STORAGE_KEYS } from '../utils/constants'
-import { generateId } from '../utils/helpers'
-
-function getAll() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEYS.KPI) || '[]')
-}
-
-function saveAll(kpi) {
-  localStorage.setItem(STORAGE_KEYS.KPI, JSON.stringify(kpi))
-}
+import { api } from './api'
 
 export function getKPI() {
-  return getAll()
+  return api.get('/api/kpi')
 }
 
 export function getKPIById(id) {
-  return getAll().find((k) => k.id === id) || null
+  return api.get(`/api/kpi/${id}`)
 }
 
 export function createKPI(data) {
-  const list = getAll()
-  const now = new Date().toISOString()
-  const item = { id: generateId(), ...data, createdAt: now, updatedAt: now }
-  list.unshift(item)
-  saveAll(list)
-  return item
+  return api.post('/api/kpi', data)
 }
 
 export function updateKPI(id, data) {
-  const list = getAll()
-  const idx = list.findIndex((k) => k.id === id)
-  if (idx === -1) throw new Error('KPI not found')
-  list[idx] = { ...list[idx], ...data, updatedAt: new Date().toISOString() }
-  saveAll(list)
-  return list[idx]
+  return api.put(`/api/kpi/${id}`, data)
 }
 
 export function deleteKPI(id) {
-  const list = getAll().filter((k) => k.id !== id)
-  saveAll(list)
+  return api.delete(`/api/kpi/${id}`)
 }

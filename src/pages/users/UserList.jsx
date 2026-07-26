@@ -22,10 +22,14 @@ export default function UserList() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
-  const loadUsers = useCallback(() => {
+  const loadUsers = useCallback(async () => {
     setLoading(true)
-    setUsers(userService.getUsers())
-    setLoading(false)
+    try {
+      const data = await userService.getUsers()
+      setUsers(data)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
@@ -36,8 +40,8 @@ export default function UserList() {
     loadUsers()
   }, [location.key, loadUsers])
 
-  const deleteUser = useCallback((id) => {
-    userService.deleteUser(id)
+  const deleteUser = useCallback(async (id) => {
+    await userService.deleteUser(id)
     setUsers((prev) => prev.filter((u) => u.id !== id))
   }, [])
 

@@ -20,12 +20,21 @@ export default function Dashboard() {
   const [reports, setReports] = useState([])
   const [users, setUsers] = useState([])
 
-  const loadData = useCallback(() => {
-    setTasks(taskService.getTasks())
-    setEvents(eventService.getEvents())
-    setKpiList(kpiService.getKPI())
-    setReports(reportService.getReports())
-    setUsers(userService.getUsers())
+  const loadData = useCallback(async () => {
+    try {
+      const [t, e, k, r, u] = await Promise.all([
+        taskService.getTasks(),
+        eventService.getEvents(),
+        kpiService.getKPI(),
+        reportService.getReports(),
+        userService.getUsers(),
+      ])
+      setTasks(t)
+      setEvents(e)
+      setKpiList(k)
+      setReports(r)
+      setUsers(u)
+    } catch {}
   }, [])
 
   useEffect(() => {

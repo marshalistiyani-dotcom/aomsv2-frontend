@@ -1,21 +1,25 @@
-import { STORAGE_KEYS } from '../utils/constants'
+import { api, setToken, removeToken, getToken } from './api'
 
-export function login(email, password) {
-  const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
-  const user = users.find((u) => u.email === email && u.password === password)
-  if (!user) {
-    throw new Error('Email atau password salah')
-  }
-  const { password: _, ...safeUser } = user
-  localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(safeUser))
-  return safeUser
+export async function login(email, password) {
+  const data = await api.post('/api/auth/login', { email, password })
+  setToken(data.token)
+  return data.user
 }
 
 export function logout() {
-  localStorage.removeItem(STORAGE_KEYS.USER)
+  removeToken()
 }
 
-export function getCurrentUser() {
-  const raw = localStorage.getItem(STORAGE_KEYS.USER)
-  return raw ? JSON.parse(raw) : null
+export async function getCurrentUser() {
+  const token = getToken()
+  if (!token) return null
+  try {
+    const data = await api.get('/api/auth/me')
+    return data.user
+  } catch {
+    removeToken()
+    return null
+  }
 }
+
+export { getToken }

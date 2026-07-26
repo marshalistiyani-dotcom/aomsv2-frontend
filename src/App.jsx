@@ -13,6 +13,7 @@ import EventForm from './pages/events/EventForm'
 import EventDetail from './pages/events/EventDetail'
 import KPIList from './pages/kpi/KPIList'
 import KPIProgress from './pages/kpi/KPIProgress'
+import KPIFarm from './pages/kpi/KPIFarm'
 import DailyReport from './pages/reports/DailyReport'
 import ReportHistory from './pages/reports/ReportHistory'
 import UserList from './pages/users/UserList'
@@ -44,7 +45,9 @@ export default function App() {
             <Route path="/events/:id" element={<EventDetail />} />
             <Route path="/events/:id/edit" element={<EventForm />} />
             <Route path="/kpi" element={<KPIList />} />
+            <Route path="/kpi/new" element={<KPIFarm />} />
             <Route path="/kpi/:id" element={<KPIProgress />} />
+            <Route path="/kpi/:id/edit" element={<KPIFarm />} />
             <Route path="/reports" element={<ReportHistory />} />
             <Route path="/reports/daily" element={<DailyReport />} />
             <Route path="/users" element={<UserList />} />

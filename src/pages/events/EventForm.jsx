@@ -17,7 +17,7 @@ export default function EventForm() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { createEvent, updateEvent, getEventById } = useEvents()
-  const [users] = useState(() => userService.getUsers())
+  const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     title: '',
@@ -25,24 +25,29 @@ export default function EventForm() {
     date: '',
     time: '',
     location: '',
-    pic: user.id,
+    pic: user?.id || '',
     status: 'upcoming',
   })
 
   useEffect(() => {
+    userService.getUsers().then(setUsers)
+  }, [])
+
+  useEffect(() => {
     if (isEdit) {
-      const event = getEventById(id)
-      if (event) {
-        setForm({
-          title: event.title,
-          description: event.description || '',
-          date: event.date,
-          time: event.time || '',
-          location: event.location || '',
-          pic: event.pic,
-          status: event.status,
-        })
-      }
+      getEventById(id).then((event) => {
+        if (event) {
+          setForm({
+            title: event.title,
+            description: event.description || '',
+            date: event.date,
+            time: event.time || '',
+            location: event.location || '',
+            pic: event.pic,
+            status: event.status,
+          })
+        }
+      })
     }
   }, [id, isEdit, getEventById])
 
