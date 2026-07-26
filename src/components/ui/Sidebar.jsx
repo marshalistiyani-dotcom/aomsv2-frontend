@@ -18,7 +18,6 @@ const navItems = [
       { to: '/reports/monthly', label: 'Monthly Report' },
     ],
   },
-  { to: '/users', label: 'Users', icon: Users },
 ]
 
 export function Sidebar({ isOpen, onClose }) {
