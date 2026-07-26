@@ -1,5 +1,5 @@
 const TOKEN_KEY = 'aoms_token'
-const API_BASE = import.meta.env.VITE_API_URL || ''
+const API_BASE = 'https://aomsv2-backend-production.up.railway.app'
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY)
