@@ -19,3 +19,7 @@ export function updateEvent(id, data) {
 export function deleteEvent(id) {
   return api.delete(`/api/events/${id}`)
 }
+
+export function updateEventReport(id, data) {
+  return api.post(`/api/events/${id}/report`, data)
+}

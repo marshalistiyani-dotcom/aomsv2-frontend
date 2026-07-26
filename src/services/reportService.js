@@ -20,3 +20,15 @@ export function createReport(data) {
 export function deleteReport(id) {
   return api.delete(`/api/reports/${id}`)
 }
+
+export function getReportById(id) {
+  return api.get(`/api/reports/${id}`)
+}
+
+export function updateReport(id, data) {
+  return api.put(`/api/reports/${id}`, data)
+}
+
+export function createMonthlyReport(data) {
+  return api.post('/api/reports/monthly', data)
+}
