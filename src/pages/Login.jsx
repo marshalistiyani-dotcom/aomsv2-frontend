@@ -7,8 +7,8 @@ import { Button } from '../components/ui/Button'
 import { LogIn } from 'lucide-react'
 
 export default function Login() {
-  const [email, setEmail] = useState('admin@stifinfamily.com')
-  const [password, setPassword] = useState('admin123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
@@ -45,9 +45,6 @@ export default function Login() {
             {loading ? 'Memproses...' : 'Masuk'}
           </Button>
         </form>
-        <p className="mt-6 text-xs text-gray-400 text-center">
-          Demo: admin@stifinfamily.com / admin123
-        </p>
       </CardBody>
     </Card>
   )
