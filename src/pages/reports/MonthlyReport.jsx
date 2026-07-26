@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardBody, CardHeader } from '../../components/ui/Card'
 import { Input } from '../../components/ui/Input'
@@ -39,7 +39,7 @@ export default function MonthlyReport() {
     }
   }, [])
 
-  useState(() => { loadReports() }, [])
+  useEffect(() => { loadReports() }, [])
 
   const handleGenerate = async () => {
     if (!period) return
