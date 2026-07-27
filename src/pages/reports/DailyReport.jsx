@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardBody } from '../../components/ui/Card'
 import { Input } from '../../components/ui/Input'
@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button'
 import { useReports } from '../../hooks/useReports'
 import { useTasks } from '../../hooks/useTasks'
 import { useAuth } from '../../contexts/AuthContext'
+import * as reportService from '../../services/reportService'
 import { formatDate } from '../../utils/helpers'
 import { ArrowLeft, Save, CheckCircle, Circle } from 'lucide-react'
 
@@ -14,10 +15,19 @@ export default function DailyReport() {
   const { user } = useAuth()
   const { createReport } = useReports()
   const { tasks } = useTasks()
+  const [reportedTaskIds, setReportedTaskIds] = useState(new Set())
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    reportService.getReports().then((r) => {
+      const ids = new Set()
+      r.forEach((report) => report.taskIds?.forEach((id) => ids.add(id)))
+      setReportedTaskIds(ids)
+    })
+  }, [])
+
   const today = new Date().toISOString().split('T')[0]
-  const todayTasks = tasks.filter((t) => t.assignee === user.id)
+  const todayTasks = tasks.filter((t) => t.assignee === user.id && !reportedTaskIds.has(t.id))
 
   const [form, setForm] = useState({
     title: `Laporan Harian - ${formatDate(today)}`,

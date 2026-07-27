@@ -6,6 +6,7 @@ import { Badge } from '../../components/ui/Badge'
 import { Input } from '../../components/ui/Input'
 import * as taskService from '../../services/taskService'
 import * as userService from '../../services/userService'
+import * as reportService from '../../services/reportService'
 import { formatDateShort, getPriorityColor, getPriorityLabel, isOverdue, getProgressColor, getProgressTextColor } from '../../utils/helpers'
 import { Plus, CheckCircle, Circle, Clock, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react'
 
@@ -17,16 +18,21 @@ export default function TaskList() {
   const [search, setSearch] = useState('')
 
   const [users, setUsers] = useState([])
+  const [reportedTaskIds, setReportedTaskIds] = useState(new Set())
 
   const loadTasks = useCallback(async () => {
     setLoading(true)
     try {
-      const [t, u] = await Promise.all([
+      const [t, u, r] = await Promise.all([
         taskService.getTasks(),
         userService.getUsers(),
+        reportService.getReports(),
       ])
       setTasks(t)
       setUsers(u)
+      const ids = new Set()
+      r.forEach((report) => report.taskIds?.forEach((id) => ids.add(id)))
+      setReportedTaskIds(ids)
     } finally {
       setLoading(false)
     }
@@ -45,9 +51,11 @@ export default function TaskList() {
     setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
   }, [])
 
-  const filtered = tasks.filter((t) =>
-    t.title.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = tasks.filter((t) => {
+    if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false
+    if (t.status === 'done' && reportedTaskIds.has(t.id)) return false
+    return true
+  })
 
   const groupedByAssignee = {}
   users.forEach((u) => {
