@@ -59,8 +59,13 @@ export default function TaskList() {
 
   const groupedByAssignee = {}
   users.forEach((u) => {
-    const userTasks = filtered.filter((t) => t.assignee === u.id)
+    let userTasks = filtered.filter((t) => t.assignee === u.id)
     if (userTasks.length > 0) {
+      userTasks = userTasks.sort((a, b) => {
+        if (!a.timeStart) return 1
+        if (!b.timeStart) return -1
+        return a.timeStart.localeCompare(b.timeStart)
+      })
       groupedByAssignee[u.id] = { user: u, tasks: userTasks }
     }
   })
