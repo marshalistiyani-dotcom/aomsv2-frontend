@@ -15,6 +15,7 @@ const navItems = [
       { to: '/reports/daily', label: 'Daily Report' },
       { to: '/reports/metrics', label: 'Setup Metrics' },
       { to: '/reports/input-metrics', label: 'Input Metrics' },
+      { to: '/reports/leads', label: 'Target Leads' },
       { to: '/reports/monthly', label: 'Monthly Report' },
     ],
   },

@@ -19,6 +19,7 @@ export default function KPIFarm() {
     description: '',
     target: 100,
     current: 0,
+    dailyTarget: 0,
     unit: '',
     department: '',
     period: 'monthly',
@@ -33,6 +34,7 @@ export default function KPIFarm() {
             description: kpi.description || '',
             target: kpi.target,
             current: kpi.current,
+            dailyTarget: kpi.dailyTarget,
             unit: kpi.unit,
             department: kpi.department,
             period: kpi.period,
@@ -94,6 +96,10 @@ export default function KPIFarm() {
               <Input label="Target" type="number" name="target" value={form.target} onChange={handleChange} required />
               <Input label="Current" type="number" name="current" value={form.current} onChange={handleChange} required />
               <Input label="Satuan" name="unit" value={form.unit} onChange={handleChange} placeholder="orang, %, dll" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input label="Target Leads Harian (per orang)" type="number" name="dailyTarget" value={form.dailyTarget} onChange={handleChange} placeholder="0 = nonaktif" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

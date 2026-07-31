@@ -88,7 +88,7 @@ export default function KPIProgress() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className={`grid grid-cols-1 gap-4 ${kpi.dailyTarget > 0 ? 'sm:grid-cols-4' : 'sm:grid-cols-3'}`}>
             <div className="p-4 bg-gray-50 rounded-lg text-center">
               <p className="text-2xl font-bold text-gray-900">{kpi.current}</p>
               <p className="text-xs text-gray-500 mt-1">Current</p>
@@ -101,6 +101,12 @@ export default function KPIProgress() {
               <p className="text-2xl font-bold text-gray-900">{remaining}</p>
               <p className="text-xs text-gray-500 mt-1">Sisa ({kpi.unit})</p>
             </div>
+            {kpi.dailyTarget > 0 && (
+              <div className="p-4 bg-blue-50 rounded-lg text-center">
+                <p className="text-2xl font-bold text-blue-700">{kpi.dailyTarget}</p>
+                <p className="text-xs text-blue-500 mt-1">Target Leads Harian</p>
+              </div>
+            )}
           </div>
 
           {kpi.description && (

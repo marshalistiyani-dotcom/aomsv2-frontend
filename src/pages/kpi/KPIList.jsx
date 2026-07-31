@@ -115,6 +115,12 @@ export default function KPIList() {
                       <span>{kpi.department}</span>
                       <span className="capitalize">{kpi.period}</span>
                     </div>
+                    {kpi.dailyTarget > 0 && (
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        <span>Target leads harian</span>
+                        <span className="font-medium text-gray-600">{kpi.dailyTarget} / orang</span>
+                      </div>
+                    )}
                   </div>
                 </CardBody>
               </Card>

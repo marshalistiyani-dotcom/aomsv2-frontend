@@ -18,6 +18,7 @@ import DailyReport from './pages/reports/DailyReport'
 import ReportHistory from './pages/reports/ReportHistory'
 import MetricsManagement from './pages/reports/MetricsManagement'
 import DailyMetricsInput from './pages/reports/DailyMetricsInput'
+import DailyLeads from './pages/leads/DailyLeads'
 import MonthlyReport from './pages/reports/MonthlyReport'
 import UserList from './pages/users/UserList'
 import UserForm from './pages/users/UserForm'
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/reports/daily" element={<DailyReport />} />
             <Route path="/reports/metrics" element={<MetricsManagement />} />
             <Route path="/reports/input-metrics" element={<DailyMetricsInput />} />
+            <Route path="/reports/leads" element={<DailyLeads />} />
             <Route path="/reports/monthly" element={<MonthlyReport />} />
             <Route path="/users" element={<UserList />} />
             <Route path="/users/new" element={<UserForm />} />
