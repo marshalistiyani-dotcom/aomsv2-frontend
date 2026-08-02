@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card, CardBody, CardHeader } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
-import { Table, Thead, Th, Tbody, Td } from '../../components/ui/Table'
 import { useDailySheets } from '../../hooks/useDailySheets'
 import { useAuth } from '../../contexts/AuthContext'
 import * as userService from '../../services/userService'
@@ -153,57 +152,73 @@ export default function DailySheetDetail() {
           <h2 className="text-base font-semibold text-gray-900">Rundown Kegiatan</h2>
         </CardHeader>
         <CardBody>
-          <Table>
-            <Thead>
-              <Th>Jam</Th>
-              <Th>Pekerjaan</Th>
-              <Th>Keterangan</Th>
-              <Th>Target Leads</Th>
-              {editing && (
-                <>
-                  <Th>Jam Realisasi</Th>
-                  <Th>Leads Didapat</Th>
-                </>
-              )}
-            </Thead>
-            <Tbody>
-              {sheet.items.map((item, index) => (
-                <tr key={item.id}>
-                  <Td className="whitespace-nowrap">{item.timeStart || '-'}{item.timeEnd ? ` - ${item.timeEnd}` : ''}</Td>
-                  <Td><span className="font-medium">{item.work || '-'}</span></Td>
-                  <Td><span className="text-gray-500">{item.keterangan || '-'}</span></Td>
-                  <Td>{item.targetLeads || 0}</Td>
+          <div className="space-y-4">
+            {sheet.items.map((item, index) => (
+              <div key={item.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <span className="text-xs font-medium text-gray-500">Kegiatan {index + 1}</span>
+                  <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    {item.timeStart || '-'}{item.timeEnd ? ` - ${item.timeEnd}` : ''}
+                  </span>
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Pekerjaan</p>
+                  <p className="text-sm font-medium text-gray-900">{item.work || '-'}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Keterangan</p>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{item.keterangan || '-'}</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Target Leads</p>
+                    <p className="text-sm font-semibold text-orange-600">{item.targetLeads ?? 0}</p>
+                  </div>
+
                   {editing ? (
                     <>
-                      <Td>
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Jam Realisasi</p>
                         <input
                           type="time"
                           value={form.items[index]?.actualTimeStart || ''}
                           onChange={(e) => handleItemChange(index, 'actualTimeStart', e.target.value)}
                           className={inputClass}
                         />
-                      </Td>
-                      <Td>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Leads Didapat</p>
                         <input
                           type="number"
                           min="0"
                           value={form.items[index]?.leadsObtained ?? ''}
                           onChange={(e) => handleItemChange(index, 'leadsObtained', e.target.value)}
-                          className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                           placeholder="0"
                         />
-                      </Td>
+                      </div>
                     </>
                   ) : (
                     <>
-                      <Td className="whitespace-nowrap">{item.actualTimeStart ? `${item.actualTimeStart}${item.actualTimeEnd ? ` - ${item.actualTimeEnd}` : ''}` : '-'}</Td>
-                      <Td className="font-semibold text-green-600">{item.leadsObtained || 0}</Td>
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Jam Realisasi</p>
+                        <p className="text-sm text-gray-700 whitespace-nowrap">
+                          {item.actualTimeStart ? `${item.actualTimeStart}${item.actualTimeEnd ? ` - ${item.actualTimeEnd}` : ''}` : '-'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Leads Didapat</p>
+                        <p className="text-sm font-semibold text-green-600">{item.leadsObtained ?? 0}</p>
+                      </div>
                     </>
                   )}
-                </tr>
-              ))}
-            </Tbody>
-          </Table>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {editing && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
