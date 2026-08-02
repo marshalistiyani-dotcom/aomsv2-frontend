@@ -156,7 +156,7 @@ export default function DailySheetForm() {
                         label="Target Leads"
                         type="number"
                         min="0"
-                        value={item.targetLeads || ''}
+                        value={item.targetLeads ?? ''}
                         onChange={(e) => handleItemChange(index, 'targetLeads', e.target.value)}
                         placeholder="0"
                       />

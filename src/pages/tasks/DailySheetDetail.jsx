@@ -187,7 +187,7 @@ export default function DailySheetDetail() {
                         <input
                           type="number"
                           min="0"
-                          value={form.items[index]?.leadsObtained || ''}
+                          value={form.items[index]?.leadsObtained ?? ''}
                           onChange={(e) => handleItemChange(index, 'leadsObtained', e.target.value)}
                           className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                           placeholder="0"
@@ -222,7 +222,7 @@ export default function DailySheetDetail() {
                 <input
                   type="number"
                   min="0"
-                  value={form.followedUp || ''}
+                  value={form.followedUp ?? ''}
                   onChange={(e) => setForm((p) => ({ ...p, followedUp: Number(e.target.value) || 0 }))}
                   className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   placeholder="0"
