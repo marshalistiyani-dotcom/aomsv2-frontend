@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/tasks', label: 'Tasks', icon: CheckSquare },
+  { to: '/tasks', label: 'Task Harian', icon: CheckSquare },
   { to: '/events', label: 'Events', icon: Calendar },
   { to: '/kpi', label: 'KPI', icon: BarChart3 },
   {
@@ -12,10 +12,9 @@ const navItems = [
     label: 'Reports',
     icon: FileText,
     children: [
-      { to: '/reports/daily', label: 'Daily Report' },
+      { to: '/reports', label: 'Riwayat Laporan' },
       { to: '/reports/metrics', label: 'Setup Metrics' },
       { to: '/reports/input-metrics', label: 'Input Metrics' },
-      { to: '/reports/leads', label: 'Target Leads' },
       { to: '/reports/monthly', label: 'Monthly Report' },
     ],
   },

@@ -7,7 +7,7 @@ import { Table, Thead, Th, Tbody, Td } from '../../components/ui/Table'
 import * as reportService from '../../services/reportService'
 import * as userService from '../../services/userService'
 import { formatDate } from '../../utils/helpers'
-import { Download, RefreshCw, FileText, Trash2, CheckCircle, BarChart3, Calendar, Globe } from 'lucide-react'
+import { Download, RefreshCw, FileText, Trash2, CheckCircle, BarChart3, Calendar, Globe, Users } from 'lucide-react'
 import { Document, Packer, Paragraph, TextRun, Table as DocTable, TableRow, TableCell, WidthType, AlignmentType } from 'docx'
 import { saveAs } from 'file-saver'
 
@@ -89,13 +89,13 @@ export default function MonthlyReport() {
       )
 
       children.push(
-        new Paragraph({ children: [new TextRun({ text: 'Ringkasan Tasks', bold: true, size: 24 })], spacing: { before: 400, after: 200 } }),
+        new Paragraph({ children: [new TextRun({ text: 'Realisasi Lembar Harian', bold: true, size: 24 })], spacing: { before: 400, after: 200 } }),
         new DocTable({
           rows: [
             new TableRow({ tableHeader: true, children: ['Status', 'Jumlah'].map(t => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: t, bold: true })] })] })) }),
-            new TableRow({ children: [new TableCell({ children: [new Paragraph({ children: [new TextRun('Completed')] })] }), new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ts.completed || 0))] })] })] }),
-            new TableRow({ children: [new TableCell({ children: [new Paragraph({ children: [new TextRun('In Progress')] })] }), new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ts.inProgress || 0))] })] })] }),
-            new TableRow({ children: [new TableCell({ children: [new Paragraph({ children: [new TextRun('Undone')] })] }), new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ts.undone || 0))] })] })] }),
+            new TableRow({ children: [new TableCell({ children: [new Paragraph({ children: [new TextRun('Terlapor')] })] }), new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ts.completed || 0))] })] })] }),
+            new TableRow({ children: [new TableCell({ children: [new Paragraph({ children: [new TextRun('Draft')] })] }), new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ts.inProgress || 0))] })] })] }),
+            new TableRow({ children: [new TableCell({ children: [new Paragraph({ children: [new TextRun('Belum Lapor')] })] }), new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ts.undone || 0))] })] })] }),
             new TableRow({ children: [new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Total', bold: true })] })] }), new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(ts.total || 0), bold: true })] })] })] }),
           ],
           width: { size: 100, type: WidthType.PERCENTAGE },
@@ -175,6 +175,35 @@ export default function MonthlyReport() {
         )
       }
 
+      if (report.leadSummary && Object.keys(report.leadSummary).length > 0) {
+        const ls = report.leadSummary
+        const lsRows = Object.entries(ls.byUser || {}).map(([uid, d]) => new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph({ children: [new TextRun(getUserName(uid))] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun(String(d.target || 0))] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun(String(d.actual || 0))] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun(String(d.followedUp || 0))] })] }),
+          ],
+        }))
+        children.push(
+          new Paragraph({ children: [new TextRun({ text: 'Realisasi Leads', bold: true, size: 24 })], spacing: { before: 400, after: 200 } }),
+          new DocTable({
+            rows: [
+              new TableRow({ tableHeader: true, children: ['Nama', 'Target', 'Realisasi', 'Follow Up'].map(t => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: t, bold: true })] })] })) }),
+              ...lsRows,
+              new TableRow({ children: [
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Total', bold: true })] })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(ls.target || 0), bold: true })] })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(ls.actual || 0), bold: true })] })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(ls.followedUp || 0), bold: true })] })] }),
+              ] }),
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+          }),
+          new Paragraph({ children: [new TextRun({ text: `Jumlah Leads (total sepanjang waktu): ${ls.allTimeTotal || 0}`, size: 20 })], spacing: { before: 200, after: 100 } }),
+        )
+      }
+
       children.push(
         new Paragraph({ spacing: { before: 400 } }),
         new Paragraph({ children: [new TextRun({ text: `Dicetak pada: ${new Date().toLocaleDateString('id-ID')}`, size: 18, color: '888888' })] }),
@@ -239,14 +268,14 @@ export default function MonthlyReport() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <CheckCircle size={18} className="text-green-500" />
-                <h3 className="text-sm font-semibold text-gray-900">Realisasi Tasks</h3>
+                <h3 className="text-sm font-semibold text-gray-900">Realisasi Lembar Harian</h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { label: 'Total', value: report.taskSummary?.total || 0, color: 'text-gray-900' },
-                  { label: 'Completed', value: report.taskSummary?.completed || 0, color: 'text-green-600' },
-                  { label: 'In Progress', value: report.taskSummary?.inProgress || 0, color: 'text-blue-600' },
-                  { label: 'Undone', value: report.taskSummary?.undone || 0, color: 'text-red-600' },
+                  { label: 'Total Lembar', value: report.taskSummary?.total || 0, color: 'text-gray-900' },
+                  { label: 'Terlapor', value: report.taskSummary?.completed || 0, color: 'text-green-600' },
+                  { label: 'Draft', value: report.taskSummary?.inProgress || 0, color: 'text-blue-600' },
+                  { label: 'Belum Lapor', value: report.taskSummary?.undone || 0, color: 'text-red-600' },
                 ].map((item) => (
                   <div key={item.label} className="p-3 bg-gray-50 rounded-lg text-center">
                     <p className={`text-2xl font-bold ${item.color}`}>{item.value}</p>
@@ -255,6 +284,48 @@ export default function MonthlyReport() {
                 ))}
               </div>
             </div>
+
+            {report.leadSummary && Object.keys(report.leadSummary).length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Users size={18} className="text-blue-500" />
+                  <h3 className="text-sm font-semibold text-gray-900">Realisasi Leads</h3>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                  {[
+                    { label: 'Jumlah Leads', value: report.leadSummary.allTimeTotal || 0, color: 'text-blue-600' },
+                    { label: 'Target', value: report.leadSummary.target || 0, color: 'text-orange-600' },
+                    { label: 'Realisasi', value: report.leadSummary.actual || 0, color: 'text-green-600' },
+                    { label: 'Follow Up', value: report.leadSummary.followedUp || 0, color: 'text-purple-600' },
+                  ].map((item) => (
+                    <div key={item.label} className="p-3 bg-gray-50 rounded-lg text-center">
+                      <p className={`text-2xl font-bold ${item.color}`}>{item.value}</p>
+                      <p className="text-xs text-gray-500 mt-1">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+                {Object.keys(report.leadSummary.byUser || {}).length > 0 && (
+                  <Table>
+                    <Thead>
+                      <Th>Nama</Th>
+                      <Th>Target</Th>
+                      <Th>Realisasi</Th>
+                      <Th>Follow Up</Th>
+                    </Thead>
+                    <Tbody>
+                      {Object.entries(report.leadSummary.byUser).map(([uid, d]) => (
+                        <tr key={uid}>
+                          <Td><span className="font-medium">{getUserName(uid)}</span></Td>
+                          <Td>{d.target || 0}</Td>
+                          <Td>{d.actual || 0}</Td>
+                          <Td>{d.followedUp || 0}</Td>
+                        </tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                )}
+              </div>
+            )}
 
             {report.kpiProgress?.length > 0 && (
               <div>

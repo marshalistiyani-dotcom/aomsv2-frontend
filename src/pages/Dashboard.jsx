@@ -3,18 +3,18 @@ import { useLocation } from 'react-router-dom'
 import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { useAuth } from '../contexts/AuthContext'
-import * as taskService from '../services/taskService'
+import * as dailySheetService from '../services/dailySheetService'
 import * as eventService from '../services/eventService'
 import * as kpiService from '../services/kpiService'
 import * as reportService from '../services/reportService'
 import * as userService from '../services/userService'
-import { formatDate, getStatusColor, getPriorityColor, getStatusLabel, getPriorityLabel, isOverdue } from '../utils/helpers'
-import { CheckSquare, Calendar, Users, TrendingUp, AlertCircle, Clock, CheckCircle } from 'lucide-react'
+import { formatDate, getStatusColor, getStatusLabel, isOverdue } from '../utils/helpers'
+import { FileText, CheckCircle, AlertCircle, Calendar, Users, TrendingUp } from 'lucide-react'
 
 export default function Dashboard() {
   const location = useLocation()
   const { user } = useAuth()
-  const [tasks, setTasks] = useState([])
+  const [sheets, setSheets] = useState([])
   const [events, setEvents] = useState([])
   const [kpiList, setKpiList] = useState([])
   const [reports, setReports] = useState([])
@@ -22,14 +22,14 @@ export default function Dashboard() {
 
   const loadData = useCallback(async () => {
     try {
-      const [t, e, k, r, u] = await Promise.all([
-        taskService.getTasks(),
+      const [s, e, k, r, u] = await Promise.all([
+        dailySheetService.getDailySheets(),
         eventService.getEvents(),
         kpiService.getKPI(),
         reportService.getReports(),
         userService.getUsers(),
       ])
-      setTasks(t)
+      setSheets(s)
       setEvents(e)
       setKpiList(k)
       setReports(r)
@@ -45,23 +45,25 @@ export default function Dashboard() {
     loadData()
   }, [location.key, loadData])
 
-  const doneTasks = tasks.filter((t) => t.status === 'done')
-  const overdueTasks = tasks.filter((t) => isOverdue(t.dueDate) && t.status !== 'done')
+  const today = new Date().toISOString().split('T')[0]
+  const todaySheets = sheets.filter((s) => s.date === today)
+  const reportedToday = todaySheets.filter((s) => s.status === 'reported').length
+  const overdueSheets = sheets.filter((s) => s.date < today && s.status !== 'reported')
   const upcomingEvents = events.filter((e) => e.status === 'upcoming' || e.status === 'ongoing')
   const totalKPI = kpiList.length
   const kpiOnTrack = kpiList.filter((k) => (k.current / k.target) >= 0.5).length
 
   const stats = [
-    { label: 'Total Tasks', value: tasks.length, icon: CheckSquare, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Tasks Done', value: doneTasks.length, icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
-    { label: 'Overdue', value: overdueTasks.length, icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' },
+    { label: 'Lembar Hari Ini', value: todaySheets.length, icon: FileText, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { label: 'Terlapor Hari Ini', value: reportedToday, icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
+    { label: 'Belum Lapor', value: overdueSheets.length, icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' },
     { label: 'Upcoming Events', value: upcomingEvents.length, icon: Calendar, color: 'text-purple-600', bg: 'bg-purple-100' },
     { label: 'KPI On Track', value: `${kpiOnTrack}/${totalKPI}`, icon: TrendingUp, color: 'text-orange-600', bg: 'bg-orange-100' },
     { label: 'Users', value: users.length, icon: Users, color: 'text-teal-600', bg: 'bg-teal-100' },
   ]
 
   const recentReports = [...reports].slice(0, 5)
-  const myTasks = tasks.filter((t) => t.assignee === user.id)
+  const mySheets = sheets.filter((s) => s.userId === user.id)
 
   return (
     <div className="space-y-6">
@@ -89,33 +91,37 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <h2 className="text-base font-semibold text-gray-900">My Tasks Summary</h2>
+            <h2 className="text-base font-semibold text-gray-900">Lembar Saya</h2>
           </CardHeader>
           <CardBody className="p-0">
-            {myTasks.length === 0 ? (
-              <p className="text-sm text-gray-500 p-6">Belum ada task.</p>
+            {mySheets.length === 0 ? (
+              <p className="text-sm text-gray-500 p-6">Belum ada lembar task harian.</p>
             ) : (
               <ul className="divide-y divide-gray-100">
-                {myTasks.slice(0, 5).map((task) => (
-                  <li key={task.id} className="px-6 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {task.status === 'done' ? (
-                        <CheckCircle size={16} className="text-green-500" />
-                      ) : isOverdue(task.dueDate) ? (
-                        <AlertCircle size={16} className="text-red-500" />
-                      ) : task.status === 'in_progress' ? (
-                        <Clock size={16} className="text-blue-500" />
-                      ) : (
-                        <Clock size={16} className="text-gray-400" />
-                      )}
-                      <span className="text-sm text-gray-700">{task.title}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getPriorityColor(task.priority)}>{getPriorityLabel(task.priority)}</Badge>
-                      <Badge className={getStatusColor(task.status)}>{getStatusLabel(task.status)}</Badge>
-                    </div>
-                  </li>
-                ))}
+                {mySheets.slice(0, 5).map((sheet) => {
+                  const totalObtained = (sheet.items || []).reduce((s, it) => s + (Number(it.leadsObtained) || 0), 0)
+                  const overdue = isOverdue(sheet.date) && sheet.status !== 'reported'
+                  return (
+                    <li key={sheet.id} className="px-6 py-3 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {sheet.status === 'reported' ? (
+                          <CheckCircle size={16} className="text-green-500" />
+                        ) : overdue ? (
+                          <AlertCircle size={16} className="text-red-500" />
+                        ) : (
+                          <FileText size={16} className="text-gray-400" />
+                        )}
+                        <div>
+                          <p className="text-sm text-gray-700">{formatDate(sheet.date)}</p>
+                          <p className="text-xs text-gray-400">{totalObtained} leads didapat</p>
+                        </div>
+                      </div>
+                      <Badge className={getStatusColor(sheet.status === 'reported' ? 'done' : 'todo')}>
+                        {getStatusLabel(sheet.status === 'reported' ? 'done' : 'todo')}
+                      </Badge>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </CardBody>
@@ -123,7 +129,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <h2 className="text-base font-semibold text-gray-900">Recent Activities</h2>
+            <h2 className="text-base font-semibold text-gray-900">Recent Reports</h2>
           </CardHeader>
           <CardBody className="p-0">
             {recentReports.length === 0 ? (
@@ -134,7 +140,7 @@ export default function Dashboard() {
                   const author = users.find((u) => u.id === report.userId)
                   return (
                     <li key={report.id} className="px-6 py-3">
-                      <p className="text-sm text-gray-700">{report.summary}</p>
+                      <p className="text-sm text-gray-700">{report.summary || report.title}</p>
                       <p className="text-xs text-gray-400 mt-1">
                         {author?.name || 'Unknown'} &middot; {formatDate(report.date)}
                       </p>

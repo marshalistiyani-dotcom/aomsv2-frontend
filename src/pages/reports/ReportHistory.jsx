@@ -80,12 +80,17 @@ export default function ReportHistory() {
 
       const rows = rangeReports.map((r, i) => {
         const author = users.find((u) => u.id === r.userId)
+        const ls = r.leadSummary || {}
         return new TableRow({
           children: [
             new TableCell({ children: [new Paragraph({ children: [new TextRun(String(i + 1))] })] }),
             new TableCell({ children: [new Paragraph({ children: [new TextRun(author?.name || 'Unknown')] })] }),
             new TableCell({ children: [new Paragraph({ children: [new TextRun(r.summary || '-')] })] }),
             new TableCell({ children: [new Paragraph({ children: [new TextRun(formatDate(r.date))] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ls.allTimeTotal ?? 0))] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ls.target ?? 0))] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ls.actual ?? 0))] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun(String(ls.followedUp ?? 0))] })] }),
             new TableCell({ children: [new Paragraph({ children: [new TextRun(r.notes || '-')] })] }),
           ],
         })
@@ -93,7 +98,7 @@ export default function ReportHistory() {
 
       const headerRow = new TableRow({
         tableHeader: true,
-        children: ['No', 'Nama', 'Ringkasan', 'Tanggal', 'Catatan'].map(
+        children: ['No', 'Nama', 'Ringkasan', 'Tanggal', 'Jml Leads', 'Target', 'Realisasi', 'Follow Up', 'Catatan'].map(
           (text) =>
             new TableCell({
               children: [
@@ -171,8 +176,8 @@ export default function ReportHistory() {
           <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
           <p className="text-sm text-gray-500 mt-1">Riwayat laporan harian dan export bulanan</p>
         </div>
-        <Button onClick={() => navigate('/reports/daily')}>
-          <Plus size={18} className="mr-1" /> Laporan Harian
+        <Button onClick={() => navigate('/tasks')}>
+          <Plus size={18} className="mr-1" /> Lembar Task Harian
         </Button>
       </div>
 
